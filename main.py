@@ -6,6 +6,7 @@ from administrator import admin_menu
 
 
 def register():
+
     print("\nRegister")
 
     name = input("Enter name: ")
@@ -29,6 +30,7 @@ def register():
         return
 
     for user in users:
+
         if user.email == email:
             print("Email already registered.")
             return
@@ -49,12 +51,14 @@ def register():
 
 
 def login():
+
     print("\nLogin")
 
     email = input("Enter email: ")
     password = input("Enter password: ")
 
     for user in users:
+
         if user.email == email and user.password == password:
 
             print("\nLogin successful!")
@@ -74,6 +78,12 @@ def login():
 
 
 def create_admin():
+
+    for user in users:
+
+        if user.role == "admin":
+            return
+
     admin = User(
         0,
         "Administrator",
@@ -86,9 +96,11 @@ def create_admin():
 
 
 def main():
+
     create_admin()
 
     while True:
+
         print("\nJOB APPLICATION PORTAL")
         print("1. Register")
         print("2. Login")

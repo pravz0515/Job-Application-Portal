@@ -1,10 +1,42 @@
 from data import users, jobs, applications, Job
 
 
+def company_profile_setup(recruiter):
+
+    print("\nCompany Profile Setup")
+
+    recruiter.company_name = input("Company name: ")
+    recruiter.company_description = input("Company description: ")
+    recruiter.company_location = input("Company location: ")
+    recruiter.company_website = input("Company website: ")
+    recruiter.company_email = input("Company email: ")
+
+    print("\nCompany profile created successfully!")
+
+
+def view_company_profile(recruiter):
+
+    print("\nCompany Profile")
+
+    if recruiter.company_name == "":
+        print("Company profile is not created yet.")
+        return
+
+    print("Company Name:", recruiter.company_name)
+    print("Description:", recruiter.company_description)
+    print("Location:", recruiter.company_location)
+    print("Website:", recruiter.company_website)
+    print("Email:", recruiter.company_email)
+
+
 def post_job(recruiter):
+
     print("\nPost Job")
 
-    company_name = input("Company name: ")
+    if recruiter.company_name == "":
+        print("Please setup company profile first.")
+        return
+
     job_title = input("Job title: ")
     description = input("Job description: ")
     skills = input("Required skills: ")
@@ -21,7 +53,7 @@ def post_job(recruiter):
     new_job = Job(
         job_id,
         recruiter.user_id,
-        company_name,
+        recruiter.company_name,
         job_title,
         description,
         skills,
@@ -38,12 +70,15 @@ def post_job(recruiter):
 
 
 def recruiter_jobs(recruiter):
+
     print("\nMy Job Postings")
 
     found = False
 
     for job in jobs:
+
         if job.recruiter_id == recruiter.user_id:
+
             found = True
 
             print("\nJob ID:", job.job_id)
@@ -57,36 +92,88 @@ def recruiter_jobs(recruiter):
 
 
 def recruiter_applications(recruiter):
-    print("\nApplications")
+
+    print("\nReceived Applications")
 
     found = False
 
     for application in applications:
+
         for job in jobs:
+
             if (
                 job.job_id == application.job_id
                 and job.recruiter_id == recruiter.user_id
             ):
+
                 found = True
                 candidate = None
 
                 for user in users:
+
                     if user.user_id == application.candidate_id:
                         candidate = user
                         break
 
-                print("\nApplication ID:", application.application_id)
-                print("Job:", job.job_title)
-                print("Candidate:", candidate.name)
-                print("Email:", candidate.email)
-                print("Resume:", application.resume)
-                print("Status:", application.status)
+                if candidate is not None:
+
+                    print("\nApplication ID:", application.application_id)
+                    print("Job:", job.job_title)
+                    print("Candidate:", candidate.name)
+                    print("Email:", candidate.email)
+                    print("Phone:", candidate.phone)
+                    print("Qualification:", candidate.qualification)
+                    print("Skills:", candidate.skills)
+                    print("Experience:", candidate.experience)
+                    print("Resume:", application.resume)
+                    print("Status:", application.status)
 
     if not found:
         print("No applications received.")
 
 
+def review_candidate(recruiter):
+
+    print("\nReview Candidates")
+
+    found = False
+
+    for application in applications:
+
+        for job in jobs:
+
+            if (
+                job.job_id == application.job_id
+                and job.recruiter_id == recruiter.user_id
+            ):
+
+                found = True
+                candidate = None
+
+                for user in users:
+
+                    if user.user_id == application.candidate_id:
+                        candidate = user
+                        break
+
+                if candidate is not None:
+
+                    print("\nApplication ID:", application.application_id)
+                    print("Candidate:", candidate.name)
+                    print("Email:", candidate.email)
+                    print("Qualification:", candidate.qualification)
+                    print("Skills:", candidate.skills)
+                    print("Experience:", candidate.experience)
+                    print("Resume:", application.resume)
+                    print("Job:", job.job_title)
+                    print("Current Status:", application.status)
+
+    if not found:
+        print("No candidates available for review.")
+
+
 def update_application_status(recruiter):
+
     recruiter_applications(recruiter)
 
     try:
@@ -96,9 +183,11 @@ def update_application_status(recruiter):
         return
 
     for application in applications:
+
         if application.application_id == application_id:
 
             for job in jobs:
+
                 if (
                     job.job_id == application.job_id
                     and job.recruiter_id == recruiter.user_id
@@ -120,8 +209,12 @@ def update_application_status(recruiter):
                     }
 
                     if choice in status_dict:
+
                         application.status = status_dict[choice]
+
                         print("\nApplication status updated!")
+                        print("New Status:", application.status)
+
                     else:
                         print("Invalid status.")
 
@@ -130,30 +223,149 @@ def update_application_status(recruiter):
     print("Application not found.")
 
 
+def shortlist_candidate(recruiter):
+
+    print("\nShortlist Candidate")
+
+    recruiter_applications(recruiter)
+
+    try:
+        application_id = int(input("\nEnter Application ID: "))
+    except ValueError:
+        print("Invalid ID.")
+        return
+
+    for application in applications:
+
+        if application.application_id == application_id:
+
+            for job in jobs:
+
+                if (
+                    job.job_id == application.job_id
+                    and job.recruiter_id == recruiter.user_id
+                ):
+
+                    application.status = "Shortlisted"
+
+                    print("\nCandidate shortlisted successfully!")
+                    return
+
+    print("Application not found.")
+
+
+def reject_candidate(recruiter):
+
+    print("\nReject Candidate")
+
+    recruiter_applications(recruiter)
+
+    try:
+        application_id = int(input("\nEnter Application ID: "))
+    except ValueError:
+        print("Invalid ID.")
+        return
+
+    for application in applications:
+
+        if application.application_id == application_id:
+
+            for job in jobs:
+
+                if (
+                    job.job_id == application.job_id
+                    and job.recruiter_id == recruiter.user_id
+                ):
+
+                    application.status = "Rejected"
+
+                    print("\nCandidate rejected.")
+                    return
+
+    print("Application not found.")
+
+
+def select_candidate(recruiter):
+
+    print("\nSelect Candidate")
+
+    recruiter_applications(recruiter)
+
+    try:
+        application_id = int(input("\nEnter Application ID: "))
+    except ValueError:
+        print("Invalid ID.")
+        return
+
+    for application in applications:
+
+        if application.application_id == application_id:
+
+            for job in jobs:
+
+                if (
+                    job.job_id == application.job_id
+                    and job.recruiter_id == recruiter.user_id
+                ):
+
+                    application.status = "Selected"
+
+                    print("\nCandidate selected successfully!")
+                    return
+
+    print("Application not found.")
+
+
 def recruiter_menu(recruiter):
+
     while True:
+
         print("\nRecruiter Dashboard")
-        print("1. Post Job")
-        print("2. My Job Postings")
-        print("3. View Applications")
-        print("4. Update Application Status")
-        print("5. Logout")
+        print("1. Company Profile Setup")
+        print("2. View Company Profile")
+        print("3. Post Job")
+        print("4. My Job Postings")
+        print("5. Receive Applications")
+        print("6. Review Candidates")
+        print("7. Shortlist Candidate")
+        print("8. Reject Candidate")
+        print("9. Select Candidate")
+        print("10. Update Application Status")
+        print("11. Logout")
 
         choice = input("\nEnter choice: ")
 
         if choice == "1":
-            post_job(recruiter)
+            company_profile_setup(recruiter)
 
         elif choice == "2":
-            recruiter_jobs(recruiter)
+            view_company_profile(recruiter)
 
         elif choice == "3":
-            recruiter_applications(recruiter)
+            post_job(recruiter)
 
         elif choice == "4":
-            update_application_status(recruiter)
+            recruiter_jobs(recruiter)
 
         elif choice == "5":
+            recruiter_applications(recruiter)
+
+        elif choice == "6":
+            review_candidate(recruiter)
+
+        elif choice == "7":
+            shortlist_candidate(recruiter)
+
+        elif choice == "8":
+            reject_candidate(recruiter)
+
+        elif choice == "9":
+            select_candidate(recruiter)
+
+        elif choice == "10":
+            update_application_status(recruiter)
+
+        elif choice == "11":
             print("Logged out successfully.")
             break
 
