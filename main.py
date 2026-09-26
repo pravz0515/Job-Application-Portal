@@ -1,4 +1,5 @@
-from data import users, User
+from data import users, User, save_users
+from validation import input_email
 
 from job_seeker import candidate_menu
 from recruiter import recruiter_menu
@@ -10,7 +11,7 @@ def register():
     print("\nRegister")
 
     name = input("Enter name: ")
-    email = input("Enter email: ")
+    email = input_email("Enter email: ")
     password = input("Enter password: ")
 
     print("\nSelect Role")
@@ -31,7 +32,7 @@ def register():
 
     for user in users:
 
-        if user.email == email:
+        if user.email.lower() == email:
             print("Email already registered.")
             return
 
@@ -46,6 +47,7 @@ def register():
     )
 
     users.append(new_user)
+    save_users()
 
     print("\nRegistration successful!")
 
@@ -54,12 +56,12 @@ def login():
 
     print("\nLogin")
 
-    email = input("Enter email: ")
+    email = input("Enter email: ").strip().lower()
     password = input("Enter password: ")
 
     for user in users:
 
-        if user.email == email and user.password == password:
+        if user.email.lower() == email and user.password == password:
 
             print("\nLogin successful!")
 
@@ -93,6 +95,7 @@ def create_admin():
     )
 
     users.append(admin)
+    save_users()
 
 
 def main():

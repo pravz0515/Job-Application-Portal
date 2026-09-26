@@ -1,4 +1,15 @@
-from data import users, jobs, applications, Job
+from data import (
+    users,
+    jobs,
+    applications,
+    Job,
+    save_users,
+    save_jobs,
+    get_user_by_id,
+    change_status,
+)
+from validation import input_email, input_phone, input_skills
+from matching import print_skill_match
 
 
 def company_profile_setup(recruiter):
@@ -9,7 +20,10 @@ def company_profile_setup(recruiter):
     recruiter.company_description = input("Company description: ")
     recruiter.company_location = input("Company location: ")
     recruiter.company_website = input("Company website: ")
-    recruiter.company_email = input("Company email: ")
+    recruiter.company_email = input_email("Company email: ")
+    recruiter.company_phone = input_phone("Company phone number: ")
+
+    save_users()
 
     print("\nCompany profile created successfully!")
 
@@ -27,6 +41,11 @@ def view_company_profile(recruiter):
     print("Location:", recruiter.company_location)
     print("Website:", recruiter.company_website)
     print("Email:", recruiter.company_email)
+    print("Phone:", recruiter.company_phone)
+    print("Verified:", recruiter.verified)
+
+    if recruiter.verified != "Yes":
+        print("(Ask an admin to verify your company profile.)")
 
 
 def post_job(recruiter):
@@ -39,7 +58,7 @@ def post_job(recruiter):
 
     job_title = input("Job title: ")
     description = input("Job description: ")
-    skills = input("Required skills: ")
+    skills = input_skills("Required skills: ")
     qualification = input("Qualification: ")
     experience = input("Experience: ")
     salary = input("Salary: ")
@@ -64,6 +83,7 @@ def post_job(recruiter):
     )
 
     jobs.append(new_job)
+    save_jobs()
 
     print("\nJob posted successfully!")
     print("Job ID:", job_id)
@@ -128,6 +148,11 @@ def recruiter_applications(recruiter):
                     print("Resume:", application.resume)
                     print("Status:", application.status)
 
+                    if application.status_reason:
+                        print("Reason:", application.status_reason)
+
+                    print_skill_match(candidate.skills, job.skills)
+
     if not found:
         print("No applications received.")
 
@@ -167,6 +192,11 @@ def review_candidate(recruiter):
                     print("Resume:", application.resume)
                     print("Job:", job.job_title)
                     print("Current Status:", application.status)
+
+                    if application.status_reason:
+                        print("Reason:", application.status_reason)
+
+                    print_skill_match(candidate.skills, job.skills)
 
     if not found:
         print("No candidates available for review.")
@@ -210,7 +240,16 @@ def update_application_status(recruiter):
 
                     if choice in status_dict:
 
-                        application.status = status_dict[choice]
+                        new_status = status_dict[choice]
+
+                        if new_status == "Rejected":
+                            reason = input("Reason for rejection (required): ")
+                            while reason.strip() == "":
+                                reason = input("Reason for rejection (required): ")
+                        else:
+                            reason = input("Reason/note (optional, press Enter to skip): ")
+
+                        change_status(application, new_status, reason.strip())
 
                         print("\nApplication status updated!")
                         print("New Status:", application.status)
@@ -246,7 +285,8 @@ def shortlist_candidate(recruiter):
                     and job.recruiter_id == recruiter.user_id
                 ):
 
-                    application.status = "Shortlisted"
+                    reason = input("Reason/note (optional, press Enter to skip): ")
+                    change_status(application, "Shortlisted", reason.strip())
 
                     print("\nCandidate shortlisted successfully!")
                     return
@@ -277,7 +317,12 @@ def reject_candidate(recruiter):
                     and job.recruiter_id == recruiter.user_id
                 ):
 
-                    application.status = "Rejected"
+                    reason = input("Reason for rejection (required): ")
+
+                    while reason.strip() == "":
+                        reason = input("Reason for rejection (required): ")
+
+                    change_status(application, "Rejected", reason.strip())
 
                     print("\nCandidate rejected.")
                     return
@@ -308,7 +353,8 @@ def select_candidate(recruiter):
                     and job.recruiter_id == recruiter.user_id
                 ):
 
-                    application.status = "Selected"
+                    reason = input("Reason/note (optional, press Enter to skip): ")
+                    change_status(application, "Selected", reason.strip())
 
                     print("\nCandidate selected successfully!")
                     return
